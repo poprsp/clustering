@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 import sys
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import flask
 import flask_restful
 
 from cluster.cluster import KMeansClustering
+from cluster.hierarchical import HierarchicalClustering, Cluster
 from cluster.blog import parse_blogs
 
 app = flask.Flask(__name__)
@@ -28,6 +29,31 @@ class KMeansREST(flask_restful.Resource):
 
 
 api.add_resource(KMeansREST, "/api/k-means-clustering/<int:iterations>")
+
+
+class HierarchicalREST(flask_restful.Resource):
+    def get(self) -> Dict[int, List[str]]:
+        blogs = parse_blogs("data/blogdata.txt")
+        hierarchical_clustering = HierarchicalClustering(blogs)
+        root = hierarchical_clustering.compute()
+
+        result = {}  # type: Dict
+        self._to_dict(root, result)
+        return result
+
+    def _to_dict(self,
+                 cluster: Optional[Cluster],
+                 result: Dict,
+                 direction: str="root") -> None:
+        if cluster:
+            result[direction] = {
+                "blog": cluster.blog and cluster.blog.name or ""
+            }
+            self._to_dict(cluster.left, result[direction], "left")
+            self._to_dict(cluster.right, result[direction], "right")
+
+
+api.add_resource(HierarchicalREST, "/api/hierarchical-clustering")
 
 
 @app.route("/", defaults={"filename": None})

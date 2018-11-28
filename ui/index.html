@@ -6,20 +6,16 @@
     <script src="app.js"></script>
   </head>
   <body>
-    <form id="k-means"
-          action="javascript:void(0);"
-          style="border: 1px solid black;">
-      <b>K-means clustering</b><br>
-      Iterations:
-      <select id="k-means-iterations">
-        <option value="0">inf</option>
-        <option value="1">1</option>
-        <option value="3">3</option>
-        <option value="5">5</option>
-        <option value="10">10</option>
-      </select>
-      <input type="submit">
-    </form>
+    <div>
+      <input type="submit" id="k-means-0", value="k-means [inf]">
+      <input type="submit" id="k-means-1", value="k-means 1">
+      <input type="submit" id="k-means-3", value="k-means 3">
+      <input type="submit" id="k-means-5", value="k-means 5">
+      <input type="submit" id="k-means-10", value="k-means 10">
+    </div>
+    <div>
+      <input type="submit" id="hierarchical", value="hierarchical">
+    </div>
 
     <div id="result">
     </div>
