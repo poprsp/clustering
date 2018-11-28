@@ -14,8 +14,10 @@ class Centroid(Blog):
 
         self._number = number
         self._blogs = []  # type: List[Blog]
+        self._previous_blogs = []  # type: List[Blog]
 
     def remove_blogs(self) -> None:
+        self._previous_blogs = self._blogs.copy()
         self._blogs = []
 
     def assign_blog(self, blog: Blog) -> None:
@@ -27,6 +29,10 @@ class Centroid(Blog):
     @property
     def blogs(self) -> List[Blog]:
         return self._blogs
+
+    @property
+    def previous_blogs(self) -> List[Blog]:
+        return self._previous_blogs
 
     @property
     def number(self) -> int:
@@ -42,8 +48,7 @@ class KMeansClustering:
 
         self._words = self._prepare_words()
         self._centroids = self._create_centroids()
-        self._assign_blogs()
-        self._centroids.sort(key=lambda c: c.number)
+        self._iterate()
 
     @property
     def centroids(self) -> List[Centroid]:
@@ -59,34 +64,59 @@ class KMeansClustering:
             centroids.append(centroid)
         return centroids
 
+    def _iterate(self) -> None:
+        if self._iteration_count:
+            for _ in range(self._iteration_count):
+                self._assign_blogs()
+        else:
+            while True:
+                self._assign_blogs()
+                if not self._is_changed():
+                    break
+
     def _assign_blogs(self) -> None:
-        for i in range(self._iteration_count):
-            # Clear previous assignments
+        # Clear previous assignments
+        for centroid in self._centroids:
+            centroid.remove_blogs()
+
+        # Assign each blog to the closest centroid
+        for blog in self._blogs:
+            distance = sys.float_info.max
             for centroid in self._centroids:
-                centroid.remove_blogs()
+                new_distance = pearson(blog, centroid)
+                if new_distance < distance:
+                    distance = new_distance
+                    closest_centroid = centroid
+            closest_centroid.assign_blog(blog)
 
-            # Assign each blog to the closest centroid
-            for blog in self._blogs:
-                distance = sys.float_info.max
-                for centroid in self._centroids:
-                    new_distance = pearson(blog, centroid)
-                    if new_distance < distance:
-                        distance = new_distance
-                        closest_centroid = centroid
-                closest_centroid.assign_blog(blog)
+        # Re-calculate the center for each centroid
+        for centroid in self._centroids:
+            for i in range(len(centroid.words)):
+                avg = 0.0
+                for blog in centroid.blogs:
+                    avg += blog.words[i].count
 
-            # Re-calculate the center for each centroid
-            for centroid in self._centroids:
-                for i in range(len(centroid.words)):
-                    avg = 0.0
-                    for blog in centroid.blogs:
-                        avg += blog.words[i].count
+                if centroid.blogs:
+                    avg /= len(centroid.blogs)
 
-                    if centroid.blogs:
-                        avg /= len(centroid.blogs)
+                old_word = centroid.words[i]
+                centroid.swap_word(i, Word(old_word.word, avg))
 
-                    old_word = centroid.words[i]
-                    centroid.swap_word(i, Word(old_word.word, avg))
+    def _is_changed(self) -> bool:
+        """
+        See if the assignments in each centroid matches the previous
+        assignments.
+        """
+        for centroid in self._centroids:
+            cur = centroid.blogs
+            prev = centroid.previous_blogs
+            if len(cur) != len(prev):
+                return True
+
+            for blog in cur:
+                if blog not in prev:
+                    return True
+        return False
 
     def _prepare_words(self) -> Dict[str, Dict[str, int]]:
         """
