@@ -12,14 +12,14 @@ from cluster.blog import parse_blogs
 
 app = flask.Flask(__name__)
 api = flask_restful.Api(app)
+blogs = parse_blogs("data/blogdata.txt")
+k_means_clustering = KMeansClustering(blogs)
+hierarchical_clustering = HierarchicalClustering(blogs)
 
 
 class KMeansREST(flask_restful.Resource):
     @staticmethod
     def get(iterations: int) -> Dict[int, List[str]]:
-        blogs = parse_blogs("data/blogdata.txt")
-        k_means_clustering = KMeansClustering(blogs)
-
         result = {}  # type: Dict[int, List[str]]
         for centroid in k_means_clustering.compute(iterations):
             result[centroid.number] = []
@@ -33,11 +33,8 @@ api.add_resource(KMeansREST, "/api/k-means-clustering/<int:iterations>")
 
 class HierarchicalREST(flask_restful.Resource):
     def get(self) -> Dict[int, List[str]]:
-        blogs = parse_blogs("data/blogdata.txt")
-        hierarchical_clustering = HierarchicalClustering(blogs)
-        root = hierarchical_clustering.compute()
-
         result = {}  # type: Dict
+        root = hierarchical_clustering.compute()
         self._to_dict(root, result)
         return result
 
