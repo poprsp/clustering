@@ -16,7 +16,7 @@ class Centroid(Blog):
         self._blogs = []  # type: List[Blog]
         self._previous_blogs = []  # type: List[Blog]
 
-    def remove_blogs(self) -> None:
+    def archive_blogs(self) -> None:
         self._previous_blogs = self._blogs.copy()
         self._blogs = []
 
@@ -77,7 +77,7 @@ class KMeansClustering:
     def _assign_blogs(self) -> None:
         # Clear previous assignments
         for centroid in self._centroids:
-            centroid.remove_blogs()
+            centroid.archive_blogs()
 
         # Assign each blog to the closest centroid
         for blog in self._blogs:
