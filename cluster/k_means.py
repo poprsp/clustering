@@ -42,16 +42,17 @@ class Centroid(Blog):
 class KMeansClustering:
     _cluster_count = 5
 
-    def __init__(self, blogs: List[Blog], iteration_count: int) -> None:
+    def __init__(self, blogs: List[Blog]) -> None:
         self._blogs = blogs
-        self._iteration_count = iteration_count
-
         self._words = self._prepare_words()
-        self._centroids = self._create_centroids()
-        self._iterate()
+        self._centroids = []  # type: List[Centroid]
 
-    @property
-    def centroids(self) -> List[Centroid]:
+    def compute(self, iterations: int) -> List[Centroid]:
+        """
+        Compute a K-means cluster and return the centroids.
+        """
+        self._centroids = self._create_centroids()
+        self._iterate(iterations)
         return self._centroids
 
     def _create_centroids(self) -> List[Centroid]:
@@ -64,9 +65,9 @@ class KMeansClustering:
             centroids.append(centroid)
         return centroids
 
-    def _iterate(self) -> None:
-        if self._iteration_count:
-            for _ in range(self._iteration_count):
+    def _iterate(self, iterations: int) -> None:
+        if iterations:
+            for _ in range(iterations):
                 self._assign_blogs()
         else:
             while True:

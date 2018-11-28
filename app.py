@@ -18,10 +18,10 @@ class KMeansREST(flask_restful.Resource):
     @staticmethod
     def get(iterations: int) -> Dict[int, List[str]]:
         blogs = parse_blogs("data/blogdata.txt")
-        k_means_clustering = KMeansClustering(blogs, iterations)
+        k_means_clustering = KMeansClustering(blogs)
 
         result = {}  # type: Dict[int, List[str]]
-        for centroid in k_means_clustering.centroids:
+        for centroid in k_means_clustering.compute(iterations):
             result[centroid.number] = []
             for blog in centroid.blogs:
                 result[centroid.number].append(blog.name)
