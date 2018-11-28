@@ -35,5 +35,5 @@ def pearson(a: Blog, b: Blog) -> float:
         num = p_sum - (a_sum * b_sum / n)
         den = math.sqrt((a_sum_sq - a_sum**2 / n) * (b_sum_sq - b_sum**2 / n))
         if den:
-            return num / den
+            return 1.0 - num / den
     return 0.0
