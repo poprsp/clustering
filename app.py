@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 import flask
 import flask_restful
 
-from cluster.cluster import KMeansClustering
+from cluster.k_means import KMeansClustering
 from cluster.hierarchical import HierarchicalClustering, Cluster
 from cluster.blog import parse_blogs
 
