@@ -43,6 +43,7 @@ class KMeansClustering:
         self._words = self._prepare_words()
         self._centroids = self._create_centroids()
         self._assign_blogs()
+        self._centroids.sort(key=lambda c: c.number)
 
     @property
     def centroids(self) -> List[Centroid]:
